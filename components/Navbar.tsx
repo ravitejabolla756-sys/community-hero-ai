@@ -20,6 +20,7 @@ export function Navbar() {
   const { user, logout } = useAuth();
   const visibleLinks = links.filter((link) => !(user?.role === "admin" && link.href === "/report"));
   const roleLabel = user ? (user.role === "admin" ? "Admin" : "Citizen") : "";
+  const roleTone = user?.role === "admin" ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-emerald-50 text-emerald-800 ring-emerald-200";
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/94 shadow-sm backdrop-blur-xl">
@@ -53,9 +54,10 @@ export function Navbar() {
         </nav>
         <div className="flex items-center gap-2">
           {user && (
-            <span className="rounded-lg bg-slate-100 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200 sm:text-xs">
-              {roleLabel}
-            </span>
+            <div className={`hidden min-w-[8.5rem] rounded-lg px-3 py-2 ring-1 sm:flex sm:flex-col ${roleTone}`}>
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] leading-none">{roleLabel}</span>
+              <span className="mt-1 truncate text-[11px] font-semibold opacity-80">{user.municipalityName}</span>
+            </div>
           )}
           {user?.role === "admin" && (
             <Link href="/admin" className="hidden rounded-lg bg-amber-100 px-3 py-2 text-sm font-black text-civic-navy ring-1 ring-amber-200 transition hover:bg-amber-200 sm:block">
@@ -75,6 +77,12 @@ export function Navbar() {
         </div>
       </div>
       <nav className="shell flex gap-1 overflow-x-auto border-t border-slate-100 py-2 lg:hidden">
+        {user && (
+          <div className={`flex min-w-[9rem] shrink-0 flex-col rounded-md px-3 py-2 ring-1 ${roleTone}`}>
+            <span className="text-[10px] font-black uppercase tracking-[0.18em] leading-none">{roleLabel}</span>
+            <span className="mt-1 truncate text-[11px] font-semibold opacity-80">{user.municipalityName}</span>
+          </div>
+        )}
         {visibleLinks.map((link) => {
           const Icon = link.icon;
           return (
