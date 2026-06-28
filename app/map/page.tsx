@@ -21,12 +21,6 @@ export default function MapPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const groupedByLocation = issues.reduce<Record<string, Issue[]>>((acc, issue) => {
-    const key = issue.locationText || "Unknown location";
-    acc[key] = [...(acc[key] || []), issue];
-    return acc;
-  }, {});
-
   return (
     <main className="shell py-8">
       <div className="page-panel rounded-lg p-6">
@@ -38,29 +32,7 @@ export default function MapPage() {
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.38fr]">
         <section className="premium-card min-h-[560px] overflow-hidden rounded-lg">
-          {mapKey ? (
-            <GoogleIssueMap apiKey={mapKey} issues={issues} />
-          ) : (
-            <div className="h-[560px] overflow-auto bg-gradient-to-br from-slate-100 to-civic-blue/10 p-5">
-              <div>
-                <p className="text-2xl font-black text-civic-navy">Map preview mode</p>
-                <p className="mt-3 max-w-lg text-slate-600">Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to render marker maps. Until then, locations are grouped below.</p>
-                <div className="mt-6 grid gap-3">
-                  {Object.entries(groupedByLocation).map(([location, locationIssues]) => (
-                    <div key={location} className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200">
-                      <p className="font-black text-civic-navy">{location}</p>
-                      <p className="mt-1 text-sm text-slate-500">{locationIssues.length} issue(s)</p>
-                      {locationIssues[0].lat && locationIssues[0].lng && (
-                        <p className="mt-1 text-xs font-bold text-slate-400">
-                          {locationIssues[0].lat.toFixed(5)}, {locationIssues[0].lng.toFixed(5)}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          <GoogleIssueMap apiKey={mapKey} issues={issues} />
         </section>
         <aside className="space-y-3">
           {loading && <p className="rounded-lg bg-white p-5 font-bold text-slate-500 shadow-soft">Loading map issues...</p>}

@@ -18,7 +18,7 @@ Community Hero AI is a production-ready hackathon MVP for the **Community Hero -
 - Public issue list with category, severity, status, and search filters
 - Issue details with status timeline, comments, similar reports, and verification
 - Community verification workflow that marks issues verified at 3 confirmations
-- Google Maps page with fallback list mode when Maps key is missing
+- OpenStreetMap-powered map with optional Google Maps API upgrade
 - Protected admin dashboard for status changes and admin notes
 - Impact dashboard with category, severity, resolution, and verification analytics
 - Demo mode with localStorage when Firebase keys are missing
@@ -30,7 +30,7 @@ Community Hero AI is a production-ready hackathon MVP for the **Community Hero -
 - Firebase Firestore
 - Supabase Storage or Firebase Storage
 - Gemini API
-- Google Maps API
+- OpenStreetMap tiles, with optional Google Maps API
 - Deployable to Firebase Hosting, Google Cloud Run, or Google Cloud App Hosting
 
 ## Tech Stack
@@ -62,7 +62,7 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
 NEXT_PUBLIC_ADMIN_EMAIL=
 ```
 
-The app runs without keys using local demo mode, but production judging should use real Firebase, Supabase Storage or Firebase Storage, Gemini, and Google Maps credentials.
+The app runs without keys using local demo mode, but production judging should use real Firebase, Supabase Storage or Firebase Storage, and Gemini credentials. Google Maps is optional because the app includes a free OpenStreetMap map.
 
 ## Demo Login Credentials
 
@@ -108,13 +108,16 @@ When Supabase variables are present, image uploads use Supabase Storage. If Supa
 2. Set `GEMINI_API_KEY` in `.env.local` or your deployment environment.
 3. If the key is missing or the API fails, the app uses a rule-based civic triage fallback.
 
-## Google Maps Setup
+## Map Setup
+
+The map works for free with OpenStreetMap and does not require an API key.
+
+Optional Google Maps upgrade:
 
 1. Create or select a Google Cloud project.
 2. Enable Maps JavaScript API.
 3. Create a browser API key.
 4. Set `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`.
-5. If the key is missing, the map page shows a grouped location fallback view.
 
 ## Firebase Schema
 
@@ -281,7 +284,7 @@ Set the same environment variables in Cloud Run.
 - Submit the deployed Google Cloud/Firebase link.
 - Submit the GitHub repository link.
 - Include the selected problem statement: **Community Hero - Hyperlocal Problem Solver**.
-- Mention Google technologies used: Firebase Auth, Firestore, Gemini API, Google Maps API, and Google Cloud deployment. If using Supabase, note that it powers image storage only.
+- Mention Google technologies used: Firebase Auth, Firestore, Gemini API, and Google Cloud deployment. Note that OpenStreetMap powers the free map and Supabase powers image storage if enabled.
 - Keep demo credentials available in the project description for evaluators if production auth accounts are not pre-created.
 
 ## Future Improvements
