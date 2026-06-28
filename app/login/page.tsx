@@ -24,11 +24,11 @@ const roleOptions: Record<EntryRole, {
     bullets: ["Submit evidence", "Track your reports", "Verify community issues"]
   },
   owner: {
-    title: "Apartment owner",
+    title: "Community authority",
     eyebrow: "Manage response",
-    description: "For apartment owners, resident leads, or civic coordinators reviewing reports for a building or locality.",
+    description: "For municipality officers, ward heads, sanitation leaders, district coordinators, or community heads managing local reports.",
     icon: Building2,
-    bullets: ["Review incoming reports", "Coordinate action", "Use admin view when authorized"]
+    bullets: ["Review area reports", "Coordinate departments", "Use admin view when authorized"]
   }
 };
 
@@ -91,7 +91,7 @@ export default function LoginPage() {
               One portal for reports and response.
             </h1>
             <p className="mt-5 max-w-md text-lg leading-8 text-slate-200">
-              Citizens raise verified issues. Apartment owners and coordinators get a cleaner way to act on them.
+              Citizens raise verified issues. Area authorities and community heads get a cleaner way to act on them.
             </p>
           </div>
 
@@ -120,7 +120,7 @@ export default function LoginPage() {
           <div className="relative z-10 mt-10 rounded-xl border border-white/15 bg-white/10 p-5">
             <p className="text-sm font-bold text-slate-200">Demo tip</p>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              Use citizen mode for issue reporting, then use the owner/admin path to show response operations.
+              Use citizen mode for issue reporting, then use the authority/admin path to show response operations.
             </p>
           </div>
         </aside>
@@ -138,11 +138,11 @@ export default function LoginPage() {
             </div>
             <div className="rounded-lg bg-slate-50 px-3 py-2 text-right ring-1 ring-slate-200">
               <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Mode</p>
-              <p className="text-sm font-black text-civic-navy">{entryRole === "citizen" ? "Citizen" : "Owner"}</p>
+              <p className="text-sm font-black text-civic-navy">{entryRole === "citizen" ? "Citizen" : "Authority"}</p>
             </div>
           </div>
           <p className="mt-4 max-w-xl leading-7 text-slate-600">
-            Pick how you are entering Community Hero AI. Your municipality keeps reports scoped to the right town, ward, or apartment cluster.
+            Pick how you are entering Community Hero AI. Your area keeps reports scoped to the right municipality, ward, district, or community.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -182,7 +182,7 @@ export default function LoginPage() {
               Try citizen demo
             </button>
             <button type="button" onClick={() => demoLogin("admin@example.com")} className="action-secondary px-4 py-3 text-sm">
-              Try owner/admin demo
+              Try authority/admin demo
             </button>
           </div>
         )}
@@ -235,7 +235,7 @@ export default function LoginPage() {
                 </label>
               </div>
               <label className="block">
-                <span className="text-sm font-bold text-slate-600">Town / municipality / apartment area</span>
+                <span className="text-sm font-bold text-slate-600">Municipality / district / ward / community</span>
                 <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition focus-within:border-civic-blue focus-within:ring-4 focus-within:ring-civic-blue/10">
                   <MapPin size={18} />
                   <input
@@ -246,7 +246,7 @@ export default function LoginPage() {
                     placeholder="Example: Kukatpally Ward 12"
                   />
                 </div>
-                <span className="mt-2 block text-xs font-semibold text-slate-500">Reports and owner/admin views are filtered to this area.</span>
+                <span className="mt-2 block text-xs font-semibold text-slate-500">Reports and authority/admin views are filtered to this area.</span>
               </label>
             </>
           )}
@@ -275,11 +275,11 @@ export default function LoginPage() {
         <button disabled={loading} className="action-primary mt-6 w-full px-5 py-3 disabled:opacity-60">
           {loading ? "Please wait..." : mode === "login" ? (
             <>
-              Continue as {entryRole === "citizen" ? "citizen" : "apartment owner"} <ArrowRight size={18} />
+              Continue as {entryRole === "citizen" ? "citizen" : "community authority"} <ArrowRight size={18} />
             </>
           ) : (
             <>
-              Create {entryRole === "citizen" ? "citizen" : "owner"} account <ArrowRight size={18} />
+              Create {entryRole === "citizen" ? "citizen" : "authority"} account <ArrowRight size={18} />
             </>
           )}
         </button>
