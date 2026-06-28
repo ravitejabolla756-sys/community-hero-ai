@@ -9,8 +9,8 @@ import { AppUser } from "@/lib/types";
 type AuthContextValue = {
   user: AppUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<AppUser | null>;
+  signup: (name: string, email: string, password: string) => Promise<AppUser | null>;
   logout: () => Promise<void>;
 };
 
@@ -48,10 +48,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       async login(email, password) {
-        setUser(await loginWithEmail(email, password));
+        const nextUser = await loginWithEmail(email, password);
+        setUser(nextUser);
+        return nextUser;
       },
       async signup(name, email, password) {
-        setUser(await signupWithEmail(name, email, password));
+        const nextUser = await signupWithEmail(name, email, password);
+        setUser(nextUser);
+        return nextUser;
       },
       async logout() {
         await logoutUser();

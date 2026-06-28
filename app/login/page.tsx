@@ -2,13 +2,39 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, ShieldCheck, User } from "lucide-react";
+import { ArrowRight, Building2, CheckCircle2, Lock, Mail, ShieldCheck, User, UsersRound } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
 import { firebaseEnabled } from "@/lib/firebase/config";
 
+type EntryRole = "citizen" | "owner";
+
+const roleOptions: Record<EntryRole, {
+  title: string;
+  eyebrow: string;
+  description: string;
+  icon: typeof UsersRound;
+  bullets: string[];
+}> = {
+  citizen: {
+    title: "Citizen",
+    eyebrow: "Report and track",
+    description: "For residents who want to report local issues, verify nearby complaints, and follow resolution status.",
+    icon: UsersRound,
+    bullets: ["Submit evidence", "Track your reports", "Verify community issues"]
+  },
+  owner: {
+    title: "Apartment owner",
+    eyebrow: "Manage response",
+    description: "For apartment owners, resident leads, or civic coordinators reviewing reports for a building or locality.",
+    icon: Building2,
+    bullets: ["Review incoming reports", "Coordinate action", "Use admin view when authorized"]
+  }
+};
+
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [entryRole, setEntryRole] = useState<EntryRole>("citizen");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,10 +47,9 @@ export default function LoginPage() {
     event.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") await signup(name, email, password);
-      else await login(email, password);
+      const nextUser = mode === "signup" ? await signup(name, email, password) : await login(email, password);
       toast("Welcome to Community Hero AI", "success");
-      router.push("/dashboard");
+      router.push(entryRole === "owner" && nextUser?.role === "admin" ? "/admin" : "/dashboard");
     } catch (error) {
       toast(error instanceof Error ? error.message : "Authentication failed", "error");
     } finally {
@@ -46,20 +71,109 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="shell grid min-h-[calc(100vh-64px)] place-items-center py-10">
-      <form onSubmit={submit} className="premium-card w-full max-w-md rounded-lg p-6">
-        <div className="grid h-14 w-14 place-items-center rounded-lg bg-civic-green/10 text-civic-green">
-          <ShieldCheck size={28} />
-        </div>
-        <h1 className="mt-4 text-3xl font-black text-civic-navy">{mode === "login" ? "Login" : "Create account"}</h1>
-        <p className="mt-2 text-slate-600">Use email/password to access citizen and admin workflows. Demo login works locally until Firebase is configured.</p>
+    <main className="auth-shell shell grid min-h-[calc(100vh-72px)] items-center py-8 md:py-12">
+      <section className="auth-frame grid overflow-hidden rounded-[1.35rem] bg-white shadow-[0_24px_80px_rgba(18,48,71,0.12)] ring-1 ring-slate-200 lg:grid-cols-[0.95fr_1.05fr]">
+        <aside className="relative hidden min-h-[680px] overflow-hidden bg-[#102d43] p-8 text-white lg:block">
+          <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:32px_32px]" />
+          <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0b1f30] to-transparent" />
+          <div className="relative z-10">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">Civic access desk</p>
+            <h1 className="mt-5 max-w-sm text-5xl font-black leading-[0.95] tracking-[-0.04em]">
+              One portal for reports and response.
+            </h1>
+            <p className="mt-5 max-w-md text-lg leading-8 text-slate-200">
+              Citizens raise verified issues. Apartment owners and coordinators get a cleaner way to act on them.
+            </p>
+          </div>
+
+          <div className="relative z-10 mt-12 grid gap-4">
+            {(["citizen", "owner"] as EntryRole[]).map((role) => {
+              const option = roleOptions[role];
+              const Icon = option.icon;
+
+              return (
+                <div key={role} className="rounded-xl bg-white/10 p-5 shadow-inner ring-1 ring-white/15 backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-11 w-11 place-items-center rounded-lg bg-white text-civic-navy">
+                      <Icon size={22} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">{option.eyebrow}</p>
+                      <p className="font-black">{option.title}</p>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-sm leading-6 text-slate-200">{option.description}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="relative z-10 mt-10 rounded-xl border border-white/15 bg-white/10 p-5">
+            <p className="text-sm font-bold text-slate-200">Demo tip</p>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              Use citizen mode for issue reporting, then use the owner/admin path to show response operations.
+            </p>
+          </div>
+        </aside>
+
+        <form onSubmit={submit} className="p-5 sm:p-8 lg:p-10">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="grid h-14 w-14 place-items-center rounded-xl bg-civic-green/10 text-civic-green">
+                <ShieldCheck size={28} />
+              </div>
+              <p className="mt-5 text-xs font-black uppercase tracking-[0.22em] text-civic-green">Choose access type</p>
+              <h2 className="mt-2 text-4xl font-black leading-none tracking-[-0.04em] text-civic-navy">
+                {mode === "login" ? "Sign in" : "Create account"}
+              </h2>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-3 py-2 text-right ring-1 ring-slate-200">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Mode</p>
+              <p className="text-sm font-black text-civic-navy">{entryRole === "citizen" ? "Citizen" : "Owner"}</p>
+            </div>
+          </div>
+          <p className="mt-4 max-w-xl leading-7 text-slate-600">
+            Pick how you are entering Community Hero AI. The same secure email login works for both; admin tools stay limited to the configured admin email.
+          </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {(["citizen", "owner"] as EntryRole[]).map((role) => {
+              const option = roleOptions[role];
+              const Icon = option.icon;
+              const active = entryRole === role;
+
+              return (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => setEntryRole(role)}
+                  className={`group rounded-xl p-4 text-left ring-1 transition duration-200 hover:-translate-y-0.5 ${
+                    active
+                      ? "bg-civic-navy text-white shadow-[0_18px_36px_rgba(18,48,71,0.18)] ring-civic-navy"
+                      : "bg-slate-50 text-civic-navy ring-slate-200 hover:bg-white hover:shadow-soft"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className={`grid h-11 w-11 place-items-center rounded-lg ${active ? "bg-white/12 text-white" : "bg-white text-civic-green ring-1 ring-slate-200"}`}>
+                      <Icon size={22} />
+                    </div>
+                    {active && <CheckCircle2 size={20} className="text-emerald-300" />}
+                  </div>
+                  <p className={`mt-4 text-[11px] font-black uppercase tracking-[0.18em] ${active ? "text-emerald-300" : "text-civic-green"}`}>{option.eyebrow}</p>
+                  <h3 className="mt-1 text-xl font-black">{option.title}</h3>
+                  <p className={`mt-2 text-sm leading-6 ${active ? "text-slate-200" : "text-slate-600"}`}>{option.description}</p>
+                </button>
+              );
+            })}
+          </div>
+
         {!firebaseEnabled && (
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="mt-6 grid gap-3 rounded-xl bg-amber-50 p-3 ring-1 ring-amber-100 sm:grid-cols-2">
             <button type="button" onClick={() => demoLogin("citizen@example.com")} className="action-secondary px-4 py-3 text-sm">
-              Citizen demo
+              Try citizen demo
             </button>
             <button type="button" onClick={() => demoLogin("admin@example.com")} className="action-secondary px-4 py-3 text-sm">
-              Admin demo
+              Try owner/admin demo
             </button>
           </div>
         )}
@@ -96,7 +210,15 @@ export default function LoginPage() {
           </label>
         </div>
         <button disabled={loading} className="action-primary mt-6 w-full px-5 py-3 disabled:opacity-60">
-          {loading ? "Please wait..." : mode === "login" ? "Login" : "Sign up"}
+          {loading ? "Please wait..." : mode === "login" ? (
+            <>
+              Continue as {entryRole === "citizen" ? "citizen" : "apartment owner"} <ArrowRight size={18} />
+            </>
+          ) : (
+            <>
+              Create {entryRole === "citizen" ? "citizen" : "owner"} account <ArrowRight size={18} />
+            </>
+          )}
         </button>
         <button
           type="button"
@@ -105,7 +227,16 @@ export default function LoginPage() {
         >
           {mode === "login" ? "Need an account? Sign up" : "Already registered? Login"}
         </button>
+        <div className="mt-6 grid gap-2 rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200">
+          {roleOptions[entryRole].bullets.map((bullet) => (
+            <p key={bullet} className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+              <CheckCircle2 size={16} className="text-civic-green" />
+              {bullet}
+            </p>
+          ))}
+        </div>
       </form>
+      </section>
     </main>
   );
 }
