@@ -18,10 +18,25 @@ export type AppUser = {
   uid: string;
   name: string;
   email: string;
+  mobile: string;
+  country: string;
+  state: string;
+  district: string;
+  place: string;
   role: Role;
   municipalityId: string;
   municipalityName: string;
   createdAt: string;
+};
+
+export type SignupProfile = {
+  name: string;
+  mobile: string;
+  country: string;
+  state: string;
+  district: string;
+  place: string;
+  municipalityName: string;
 };
 
 export type Issue = {

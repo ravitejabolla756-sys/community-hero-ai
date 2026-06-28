@@ -2,9 +2,31 @@ import { User as FirebaseUser, createUserWithEmailAndPassword, signInWithEmailAn
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db, firebaseEnabled } from "@/lib/firebase/config";
 import { municipalityIdFromName, normalizeMunicipalityName } from "@/lib/municipality";
-import { AppUser } from "@/lib/types";
+import { AppUser, SignupProfile } from "@/lib/types";
 
 const localUserKey = "community-hero-user";
+
+const defaultSignupProfile: SignupProfile = {
+  name: "Citizen",
+  mobile: "",
+  country: "India",
+  state: "",
+  district: "",
+  place: "",
+  municipalityName: ""
+};
+
+function normalizeProfile(profile: Partial<SignupProfile> = {}): SignupProfile {
+  return {
+    name: profile.name?.trim() || defaultSignupProfile.name,
+    mobile: profile.mobile?.trim() || "",
+    country: profile.country?.trim() || defaultSignupProfile.country,
+    state: profile.state?.trim() || "",
+    district: profile.district?.trim() || "",
+    place: profile.place?.trim() || "",
+    municipalityName: normalizeMunicipalityName(profile.municipalityName)
+  };
+}
 
 export function getDemoUserFromStorage(): AppUser | null {
   if (typeof window === "undefined") return null;
@@ -16,6 +38,11 @@ export function getDemoUserFromStorage(): AppUser | null {
     uid: parsed.uid || parsed.email || "demo",
     email: parsed.email || "citizen@example.com",
     name: parsed.name || parsed.email?.split("@")[0] || "Citizen",
+    mobile: parsed.mobile || "",
+    country: parsed.country || "India",
+    state: parsed.state || "",
+    district: parsed.district || "",
+    place: parsed.place || "",
     role: parsed.role || "citizen",
     municipalityId: parsed.municipalityId || municipalityIdFromName(municipalityName),
     municipalityName,
@@ -23,15 +50,20 @@ export function getDemoUserFromStorage(): AppUser | null {
   };
 }
 
-function demoUser(email: string, name?: string, municipalityName?: string): AppUser {
-  const normalizedMunicipalityName = normalizeMunicipalityName(municipalityName);
+function demoUser(email: string, profile?: Partial<SignupProfile>): AppUser {
+  const normalizedProfile = normalizeProfile({ ...profile, name: profile?.name || email.split("@")[0] });
   return {
     uid: email,
     email,
-    name: name || email.split("@")[0],
+    name: normalizedProfile.name,
+    mobile: normalizedProfile.mobile,
+    country: normalizedProfile.country,
+    state: normalizedProfile.state,
+    district: normalizedProfile.district,
+    place: normalizedProfile.place,
     role: email === process.env.NEXT_PUBLIC_ADMIN_EMAIL || email.toLowerCase().includes("admin") ? "admin" : "citizen",
-    municipalityId: municipalityIdFromName(normalizedMunicipalityName),
-    municipalityName: normalizedMunicipalityName,
+    municipalityId: municipalityIdFromName(normalizedProfile.municipalityName),
+    municipalityName: normalizedProfile.municipalityName,
     createdAt: new Date().toISOString()
   };
 }
@@ -71,6 +103,11 @@ export async function getOrCreateUserProfile(firebaseUser: FirebaseUser): Promis
     uid: firebaseUser.uid,
     name: String(data.name || firebaseUser.displayName || "Citizen"),
     email,
+    mobile: String(data.mobile || ""),
+    country: String(data.country || "India"),
+    state: String(data.state || ""),
+    district: String(data.district || ""),
+    place: String(data.place || ""),
     role: (data.role as AppUser["role"]) || role,
     municipalityId: String(data.municipalityId || municipalityIdFromName(municipalityName)),
     municipalityName,
@@ -89,17 +126,23 @@ export async function loginWithEmail(email: string, password: string): Promise<A
   return user;
 }
 
-export async function signupWithEmail(name: string, email: string, password: string, municipalityNameInput?: string): Promise<AppUser | null> {
-  const municipalityName = normalizeMunicipalityName(municipalityNameInput);
+export async function signupWithEmail(profile: SignupProfile, email: string, password: string): Promise<AppUser | null> {
+  const normalizedProfile = normalizeProfile(profile);
+  const municipalityName = normalizedProfile.municipalityName;
   const municipalityId = municipalityIdFromName(municipalityName);
 
   if (firebaseEnabled && auth && db) {
     const credential = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(credential.user, { displayName: name });
+    await updateProfile(credential.user, { displayName: normalizedProfile.name });
     await setDoc(doc(db, "users", credential.user.uid), {
       uid: credential.user.uid,
-      name,
+      name: normalizedProfile.name,
       email,
+      mobile: normalizedProfile.mobile,
+      country: normalizedProfile.country,
+      state: normalizedProfile.state,
+      district: normalizedProfile.district,
+      place: normalizedProfile.place,
       role: email === process.env.NEXT_PUBLIC_ADMIN_EMAIL ? "admin" : "citizen",
       municipalityId,
       municipalityName,
@@ -108,7 +151,7 @@ export async function signupWithEmail(name: string, email: string, password: str
     return getOrCreateUserProfile(credential.user);
   }
 
-  const user = demoUser(email, name, municipalityName);
+  const user = demoUser(email, normalizedProfile);
   saveDemoUser(user);
   return user;
 }

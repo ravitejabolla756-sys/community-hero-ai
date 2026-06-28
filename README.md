@@ -127,6 +127,11 @@ Optional Google Maps upgrade:
 - `uid`
 - `name`
 - `email`
+- `mobile`
+- `country`
+- `state`
+- `district`
+- `place`
 - `role`
 - `municipalityId`
 - `municipalityName`

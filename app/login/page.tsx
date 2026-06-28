@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Building2, CheckCircle2, Lock, Mail, MapPin, ShieldCheck, User, UsersRound } from "lucide-react";
+import { ArrowRight, Building2, CheckCircle2, Globe2, Lock, Mail, MapPin, Phone, ShieldCheck, User, UsersRound } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
 import { firebaseEnabled } from "@/lib/firebase/config";
@@ -36,6 +36,11 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [entryRole, setEntryRole] = useState<EntryRole>("citizen");
   const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [country, setCountry] = useState("India");
+  const [stateName, setStateName] = useState("");
+  const [district, setDistrict] = useState("");
+  const [place, setPlace] = useState("");
   const [municipalityName, setMunicipalityName] = useState("Community Demo Ward");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,7 +53,10 @@ export default function LoginPage() {
     event.preventDefault();
     setLoading(true);
     try {
-      const nextUser = mode === "signup" ? await signup(name, email, password, municipalityName) : await login(email, password);
+      const nextUser =
+        mode === "signup"
+          ? await signup({ name, mobile, country, state: stateName, district, place, municipalityName }, email, password)
+          : await login(email, password);
       toast("Welcome to Community Hero AI", "success");
       router.push(entryRole === "owner" && nextUser?.role === "admin" ? "/admin" : "/dashboard");
     } catch (error) {
@@ -188,6 +196,44 @@ export default function LoginPage() {
                   <input value={name} onChange={(event) => setName(event.target.value)} required className="w-full py-3 outline-none" />
                 </div>
               </label>
+              <label className="block">
+                <span className="text-sm font-bold text-slate-600">Mobile number</span>
+                <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition focus-within:border-civic-blue focus-within:ring-4 focus-within:ring-civic-blue/10">
+                  <Phone size={18} />
+                  <input
+                    value={mobile}
+                    onChange={(event) => setMobile(event.target.value)}
+                    required
+                    inputMode="tel"
+                    pattern="[0-9+\-\s]{8,15}"
+                    className="w-full py-3 outline-none"
+                    placeholder="+91 98765 43210"
+                  />
+                </div>
+              </label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="text-sm font-bold text-slate-600">Country</span>
+                  <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition focus-within:border-civic-blue focus-within:ring-4 focus-within:ring-civic-blue/10">
+                    <Globe2 size={18} />
+                    <input value={country} onChange={(event) => setCountry(event.target.value)} required className="w-full py-3 outline-none" />
+                  </div>
+                </label>
+                <label className="block">
+                  <span className="text-sm font-bold text-slate-600">State</span>
+                  <input value={stateName} onChange={(event) => setStateName(event.target.value)} required className="field mt-2" placeholder="Telangana" />
+                </label>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="text-sm font-bold text-slate-600">District</span>
+                  <input value={district} onChange={(event) => setDistrict(event.target.value)} required className="field mt-2" placeholder="Hyderabad" />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-bold text-slate-600">Place / locality</span>
+                  <input value={place} onChange={(event) => setPlace(event.target.value)} required className="field mt-2" placeholder="Kukatpally" />
+                </label>
+              </div>
               <label className="block">
                 <span className="text-sm font-bold text-slate-600">Town / municipality / apartment area</span>
                 <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition focus-within:border-civic-blue focus-within:ring-4 focus-within:ring-civic-blue/10">

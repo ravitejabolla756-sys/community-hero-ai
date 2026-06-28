@@ -4,13 +4,13 @@ import { createContext, ReactNode, useContext, useEffect, useMemo, useState } fr
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, firebaseEnabled } from "@/lib/firebase/config";
 import { getDemoUserFromStorage, getOrCreateUserProfile, loginWithEmail, logoutUser, signupWithEmail } from "@/lib/firebase/auth";
-import { AppUser } from "@/lib/types";
+import { AppUser, SignupProfile } from "@/lib/types";
 
 type AuthContextValue = {
   user: AppUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<AppUser | null>;
-  signup: (name: string, email: string, password: string, municipalityName?: string) => Promise<AppUser | null>;
+  signup: (profile: SignupProfile, email: string, password: string) => Promise<AppUser | null>;
   logout: () => Promise<void>;
 };
 
@@ -52,8 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(nextUser);
         return nextUser;
       },
-      async signup(name, email, password, municipalityName) {
-        const nextUser = await signupWithEmail(name, email, password, municipalityName);
+      async signup(profile, email, password) {
+        const nextUser = await signupWithEmail(profile, email, password);
         setUser(nextUser);
         return nextUser;
       },
