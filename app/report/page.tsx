@@ -2,9 +2,10 @@
 
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bot, Camera, CheckCircle2, FileText, LocateFixed, MapPin, Upload } from "lucide-react";
+import { Bot, Camera, CheckCircle2, FileText, LocateFixed, MapPin, ShieldCheck, Upload } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { AuthGate } from "@/components/AuthGate";
+import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/components/ToastProvider";
 import { analyzeIssue } from "@/lib/ai";
 import { createIssue } from "@/lib/firebase/firestore";
@@ -84,6 +85,17 @@ export default function ReportPage() {
 
   return (
     <AuthGate label="the report form">
+    {user?.role === "admin" ? (
+      <main className="shell py-10">
+        <EmptyState
+          icon={ShieldCheck}
+          title="Authority account active"
+          text="Community authorities manage and resolve reports from their area. Citizens create new reports from citizen accounts."
+          actionHref="/admin"
+          actionLabel="Open admin queue"
+        />
+      </main>
+    ) : (
     <main className="shell py-8">
       <div className="page-panel mb-6 rounded-lg p-6">
         <p className="page-kicker">AI assisted civic intake</p>
@@ -196,6 +208,7 @@ export default function ReportPage() {
         </aside>
       </form>
     </main>
+    )}
     </AuthGate>
   );
 }
