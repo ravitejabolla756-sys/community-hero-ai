@@ -5,21 +5,24 @@ import { BarChart3, CheckCircle2, Clock, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { StatCard } from "@/components/StatCard";
 import { useAuth } from "@/components/AuthProvider";
+import { AuthGate } from "@/components/AuthGate";
 import { getIssuesForScope } from "@/lib/firebase/firestore";
 import { categories, Issue, severities, statuses } from "@/lib/types";
 
 export default function ImpactPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading || !user?.municipalityId) return;
+    setLoading(true);
     getIssuesForScope(user?.municipalityId)
       .then(setIssues)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load impact metrics."))
       .finally(() => setLoading(false));
-  }, [user?.municipalityId]);
+  }, [authLoading, user?.municipalityId]);
 
   const stats = useMemo(() => {
     const resolved = issues.filter((issue) => issue.status === "Resolved").length;
@@ -33,6 +36,7 @@ export default function ImpactPage() {
   }, [issues]);
 
   return (
+    <AuthGate label="impact metrics">
     <main className="shell py-8">
       <div className="page-panel rounded-lg p-6">
         <p className="page-kicker">Community intelligence</p>
@@ -79,6 +83,7 @@ export default function ImpactPage() {
         </div>
       </section>
     </main>
+    </AuthGate>
   );
 }
 

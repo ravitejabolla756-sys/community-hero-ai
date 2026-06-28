@@ -8,25 +8,29 @@ import { IssueCard } from "@/components/IssueCard";
 import { CardGridSkeleton } from "@/components/Skeletons";
 import { StatCard } from "@/components/StatCard";
 import { useAuth } from "@/components/AuthProvider";
+import { AuthGate } from "@/components/AuthGate";
 import { getIssuesForScope } from "@/lib/firebase/firestore";
 import { Issue } from "@/lib/types";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loadingIssues, setLoadingIssues] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading || !user?.municipalityId) return;
+    setLoadingIssues(true);
     getIssuesForScope(user?.municipalityId)
       .then(setIssues)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load dashboard issues."))
       .finally(() => setLoadingIssues(false));
-  }, [user?.municipalityId]);
+  }, [authLoading, user?.municipalityId]);
 
   const myIssues = useMemo(() => (user ? issues.filter((issue) => issue.reportedBy === user.uid || issue.reportedByEmail === user.email) : issues), [issues, user]);
 
   return (
+    <AuthGate label="your dashboard">
     <main className="shell py-8">
       <div className="page-panel rounded-lg p-6">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
@@ -72,5 +76,6 @@ export default function DashboardPage() {
         )}
       </section>
     </main>
+    </AuthGate>
   );
 }

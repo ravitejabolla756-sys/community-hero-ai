@@ -6,24 +6,28 @@ import { MapPinned } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { GoogleIssueMap } from "@/components/GoogleIssueMap";
 import { useAuth } from "@/components/AuthProvider";
+import { AuthGate } from "@/components/AuthGate";
 import { getIssuesForScope } from "@/lib/firebase/firestore";
 import { Issue } from "@/lib/types";
 
 export default function MapPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const mapKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
+    if (authLoading || !user?.municipalityId) return;
+    setLoading(true);
     getIssuesForScope(user?.municipalityId)
       .then(setIssues)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load map issues."))
       .finally(() => setLoading(false));
-  }, [user?.municipalityId]);
+  }, [authLoading, user?.municipalityId]);
 
   return (
+    <AuthGate label="the community map">
     <main className="shell py-8">
       <div className="page-panel rounded-lg p-6">
         <p className="page-kicker">Hyperlocal visibility</p>
@@ -54,5 +58,6 @@ export default function MapPage() {
         </aside>
       </div>
     </main>
+    </AuthGate>
   );
 }

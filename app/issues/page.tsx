@@ -6,11 +6,12 @@ import { EmptyState } from "@/components/EmptyState";
 import { IssueCard } from "@/components/IssueCard";
 import { CardGridSkeleton } from "@/components/Skeletons";
 import { useAuth } from "@/components/AuthProvider";
+import { AuthGate } from "@/components/AuthGate";
 import { getIssuesForScope } from "@/lib/firebase/firestore";
 import { categories, Issue, severities, statuses } from "@/lib/types";
 
 export default function IssuesPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -20,11 +21,13 @@ export default function IssuesPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading || !user?.municipalityId) return;
+    setLoading(true);
     getIssuesForScope(user?.municipalityId)
       .then(setIssues)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load issues."))
       .finally(() => setLoading(false));
-  }, [user?.municipalityId]);
+  }, [authLoading, user?.municipalityId]);
 
   const filtered = useMemo(
     () =>
@@ -36,6 +39,7 @@ export default function IssuesPage() {
   );
 
   return (
+    <AuthGate label="the issue tracker">
     <main className="shell py-8">
       <div className="page-panel rounded-lg p-6">
         <p className="page-kicker">Transparent issue tracking</p>
@@ -81,5 +85,6 @@ export default function IssuesPage() {
         </div>
       )}
     </main>
+    </AuthGate>
   );
 }

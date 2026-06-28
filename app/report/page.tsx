@@ -4,6 +4,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bot, Camera, CheckCircle2, FileText, LocateFixed, MapPin, Upload } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { AuthGate } from "@/components/AuthGate";
 import { useToast } from "@/components/ToastProvider";
 import { analyzeIssue } from "@/lib/ai";
 import { createIssue } from "@/lib/firebase/firestore";
@@ -82,6 +83,7 @@ export default function ReportPage() {
   }
 
   return (
+    <AuthGate label="the report form">
     <main className="shell py-8">
       <div className="page-panel mb-6 rounded-lg p-6">
         <p className="page-kicker">AI assisted civic intake</p>
@@ -194,5 +196,6 @@ export default function ReportPage() {
         </aside>
       </form>
     </main>
+    </AuthGate>
   );
 }

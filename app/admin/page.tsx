@@ -22,7 +22,9 @@ export default function AdminPage() {
   const [categoryFilter, setCategoryFilter] = useState("All");
 
   async function refresh() {
+    if (!user?.municipalityId) return;
     setError("");
+    setLoadingIssues(true);
     try {
       setIssues(await getIssuesForScope(user?.municipalityId));
     } catch (err) {
@@ -33,7 +35,6 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    if (!user) return;
     refresh();
   }, [user?.municipalityId]);
 

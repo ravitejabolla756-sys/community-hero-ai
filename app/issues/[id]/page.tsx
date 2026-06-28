@@ -7,13 +7,14 @@ import { Clock, MapPin, MessageSquare, ShieldCheck, Sparkles } from "lucide-reac
 import { Badge } from "@/components/Badge";
 import { IssueImage } from "@/components/IssueImage";
 import { useAuth } from "@/components/AuthProvider";
+import { AuthGate } from "@/components/AuthGate";
 import { useToast } from "@/components/ToastProvider";
 import { addComment, getCommentsByIssueId, getIssueById, getIssuesForScope, verifyIssue } from "@/lib/firebase/firestore";
 import { Comment, Issue, statuses } from "@/lib/types";
 
 export default function IssueDetailsPage() {
   const params = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const toast = useToast();
   const [issue, setIssue] = useState<Issue | null>(null);
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -24,6 +25,7 @@ export default function IssueDetailsPage() {
   const [error, setError] = useState("");
 
   async function refresh() {
+    if (authLoading || !user?.municipalityId) return;
     setError("");
     try {
       const [loadedIssue, loadedIssues, loadedComments] = await Promise.all([
@@ -50,7 +52,7 @@ export default function IssueDetailsPage() {
 
   useEffect(() => {
     refresh();
-  }, [params.id, user?.municipalityId]);
+  }, [authLoading, params.id, user?.municipalityId]);
 
   const similar = useMemo(() => issues.filter((item) => item.id !== issue?.id && item.category === issue?.category).slice(0, 3), [issue, issues]);
   const alreadyVerified = Boolean(user && issue?.verifiedBy.includes(user.uid));
@@ -84,6 +86,8 @@ export default function IssueDetailsPage() {
     }
   }
 
+  if (authLoading) return <main className="shell py-10 font-bold text-slate-600">Checking access...</main>;
+  if (!user) return <AuthGate label="issue details"><span /></AuthGate>;
   if (loading) return <main className="shell py-10 font-bold text-slate-600">Loading issue...</main>;
   if (error) return <main className="shell py-10 rounded-lg text-red-700">{error}</main>;
   if (!issue) return <main className="shell py-10 font-bold text-slate-600">Issue not found.</main>;
