@@ -20,7 +20,7 @@ export function Badge({ label, type = "neutral" }: { label: string; type?: "seve
   return (
     <span
       className={clsx(
-        "inline-flex items-center rounded-md px-2.5 py-1 text-xs font-extrabold ring-1 shadow-sm",
+        "inline-flex items-center rounded-md px-2.5 py-1 text-xs font-black ring-1 shadow-sm backdrop-blur",
         type === "severity" && severityClass[label],
         type === "status" && statusClass[label],
         type === "neutral" && "bg-white text-civic-navy ring-slate-200"

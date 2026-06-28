@@ -37,6 +37,7 @@ export default function IssuesPage() {
       }),
     [category, issues, search, severity, status]
   );
+  const isAuthority = user?.role === "admin";
 
   return (
     <AuthGate label="the issue tracker">
@@ -48,7 +49,7 @@ export default function IssuesPage() {
           Browse reports from {user?.municipalityName || "your selected municipality"}, filter by severity, and open any case for verification.
         </p>
       </div>
-      <section className="premium-card mt-6 grid gap-3 rounded-lg p-4 md:grid-cols-4">
+      <section className="toolbar-panel mt-6 grid gap-3 rounded-lg p-4 md:grid-cols-4">
         <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3">
           <Search size={18} />
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search title or location" className="w-full py-3 outline-none" />
@@ -81,7 +82,13 @@ export default function IssuesPage() {
       {error && <p className="mt-10 rounded-lg bg-red-50 p-8 text-center font-bold text-red-700 ring-1 ring-red-100">{error}</p>}
       {!loading && !error && !filtered.length && (
         <div className="mt-8">
-          <EmptyState icon={Inbox} title="No issues found" text="Try changing filters or report a new community issue for others to verify." actionHref="/report" actionLabel="Report an issue" />
+          <EmptyState
+            icon={Inbox}
+            title="No issues found"
+            text={isAuthority ? "No citizen reports match these filters for your area yet." : "Try changing filters or report a new community issue for others to verify."}
+            actionHref={isAuthority ? "/admin" : "/report"}
+            actionLabel={isAuthority ? "Open response queue" : "Report an issue"}
+          />
         </div>
       )}
     </main>

@@ -44,8 +44,8 @@ export default function AdminPage() {
       <main className="shell grid min-h-[calc(100vh-64px)] place-items-center py-10 text-center">
         <div className="rounded-lg bg-white p-8 shadow-soft ring-1 ring-slate-100">
           <AlertTriangle className="mx-auto text-civic-amber" size={40} />
-          <h1 className="mt-4 text-2xl font-black text-civic-navy">Admin access required</h1>
-          <p className="mt-2 text-slate-600">Login with the configured admin email or an email containing admin in demo mode.</p>
+          <h1 className="mt-4 text-2xl font-black text-civic-navy">Authority access required</h1>
+          <p className="mt-2 text-slate-600">Sign in with an authority account to manage reports for your selected area.</p>
           <Link href="/login" className="mt-5 inline-block rounded-lg bg-civic-navy px-5 py-3 font-black text-white">
             Login
           </Link>
@@ -74,8 +74,8 @@ export default function AdminPage() {
   return (
     <main className="shell py-8">
       <div className="page-panel rounded-lg p-6">
-        <p className="page-kicker">Municipal response console</p>
-        <h1 className="page-title mt-2 text-3xl font-black text-civic-navy sm:text-4xl">Admin response queue</h1>
+        <p className="page-kicker">Authority response console</p>
+        <h1 className="page-title mt-2 text-3xl font-black text-civic-navy sm:text-4xl">Area response queue</h1>
           <p className="mt-3 max-w-2xl leading-7 text-slate-600">
             Prioritize reports for {user.municipalityName}, update workflow status, and publish official notes for transparent resolution.
           </p>
@@ -87,7 +87,7 @@ export default function AdminPage() {
         <StatCard label="In progress" value={issues.filter((issue) => issue.status === "In Progress").length} icon={ClipboardList} accent="#f4a261" />
         <StatCard label="Resolved" value={issues.filter((issue) => issue.status === "Resolved").length} icon={CheckCircle2} accent="#2a9d8f" />
       </section>
-      <section className="premium-card mt-6 grid gap-3 rounded-lg p-4 md:grid-cols-3">
+      <section className="toolbar-panel mt-6 grid gap-3 rounded-lg p-4 md:grid-cols-3">
         <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="field">
           <option>All</option>
           {statuses.map((item) => (
@@ -108,7 +108,7 @@ export default function AdminPage() {
         </select>
       </section>
       <section className="mt-8 space-y-4">
-        {loadingIssues && <p className="rounded-lg bg-white p-6 font-bold text-slate-500 shadow-soft">Loading admin queue...</p>}
+        {loadingIssues && <p className="premium-card rounded-lg p-6 font-bold text-slate-500">Loading response queue...</p>}
         {error && <p className="rounded-lg bg-red-50 p-6 font-bold text-red-700 ring-1 ring-red-100">{error}</p>}
         {!loadingIssues && filteredIssues.map((issue) => (
           <AdminIssue key={issue.id} issue={issue} onSave={save} />
@@ -157,7 +157,7 @@ function AdminIssue({ issue, onSave }: { issue: Issue; onSave: (issueId: string,
             <option key={item}>{item}</option>
           ))}
         </select>
-        <input value={note} onChange={(event) => setNote(event.target.value)} placeholder="Admin note" className="field" />
+        <input value={note} onChange={(event) => setNote(event.target.value)} placeholder="Official response note" className="field" />
         <button disabled={saving} className="action-primary px-5 py-3 disabled:opacity-60">
           {saving ? "Saving..." : "Save"}
         </button>

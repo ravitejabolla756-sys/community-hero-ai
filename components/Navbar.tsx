@@ -20,18 +20,18 @@ export function Navbar() {
   const { user, logout } = useAuth();
   const visibleLinks = links.filter((link) => !(user?.role === "admin" && link.href === "/report"));
   const roleLabel = user ? (user.role === "admin" ? "Authority" : "Citizen") : "";
-  const roleTone = user?.role === "admin" ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-emerald-50 text-emerald-800 ring-emerald-200";
+  const roleTone = user?.role === "admin" ? "text-amber-800 ring-amber-200" : "text-emerald-800 ring-emerald-200";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/94 shadow-sm backdrop-blur-xl">
-      <div className="shell flex h-16 items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/86 shadow-sm backdrop-blur-xl">
+      <div className="shell flex h-[4.6rem] items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3 font-black text-civic-navy">
-          <span className="grid h-10 w-10 place-items-center rounded-lg bg-civic-navy text-sm text-white shadow-sm">
+          <span className="grid h-11 w-11 place-items-center rounded-lg bg-civic-navy text-sm text-white shadow-sm ring-1 ring-civic-navy/10">
             CH
           </span>
           <span className="leading-tight">
             Community Hero
-            <span className="block text-xs font-black uppercase tracking-wider text-civic-green">Civic issue ops</span>
+            <span className="block text-xs font-black uppercase tracking-[0.14em] text-civic-green">Civic issue ops</span>
           </span>
         </Link>
         <nav className="hidden items-center gap-1 lg:flex">
@@ -42,8 +42,8 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={clsx(
-                  "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-black transition",
-                  pathname === link.href ? "bg-civic-navy text-white shadow-sm" : "text-slate-600 hover:bg-slate-100 hover:text-civic-navy"
+                  "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-black transition",
+                  pathname === link.href ? "bg-civic-navy text-white shadow-sm" : "text-slate-600 hover:bg-white/80 hover:text-civic-navy hover:shadow-sm"
                 )}
               >
                 <Icon size={16} />
@@ -54,7 +54,7 @@ export function Navbar() {
         </nav>
         <div className="flex items-center gap-2">
           {user && (
-            <div className={`hidden min-w-[8.5rem] rounded-lg px-3 py-2 ring-1 sm:flex sm:flex-col ${roleTone}`}>
+            <div className={`role-chip hidden min-w-[9.5rem] rounded-lg px-3 py-2 ring-1 sm:flex sm:flex-col ${roleTone}`}>
               <span className="text-[10px] font-black uppercase tracking-[0.18em] leading-none">{roleLabel}</span>
               <span className="mt-1 truncate text-[11px] font-semibold opacity-80">{user.municipalityName}</span>
             </div>
@@ -78,7 +78,7 @@ export function Navbar() {
       </div>
       <nav className="shell flex gap-1 overflow-x-auto border-t border-slate-100 py-2 lg:hidden">
         {user && (
-          <div className={`flex min-w-[9rem] shrink-0 flex-col rounded-md px-3 py-2 ring-1 ${roleTone}`}>
+          <div className={`role-chip flex min-w-[9rem] shrink-0 flex-col rounded-md px-3 py-2 ring-1 ${roleTone}`}>
             <span className="text-[10px] font-black uppercase tracking-[0.18em] leading-none">{roleLabel}</span>
             <span className="mt-1 truncate text-[11px] font-semibold opacity-80">{user.municipalityName}</span>
           </div>

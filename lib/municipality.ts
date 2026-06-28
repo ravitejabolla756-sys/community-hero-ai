@@ -1,4 +1,4 @@
-export const defaultMunicipalityName = process.env.NEXT_PUBLIC_DEFAULT_MUNICIPALITY || "Community Demo Ward";
+export const defaultMunicipalityName = process.env.NEXT_PUBLIC_DEFAULT_MUNICIPALITY || "your area";
 
 export function normalizeMunicipalityName(value?: string) {
   const trimmed = value?.trim();
@@ -9,6 +9,5 @@ export function municipalityIdFromName(value?: string) {
   return normalizeMunicipalityName(value)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "community-demo-ward";
+    .replace(/^-+|-+$/g, "") || "your-area";
 }
-
