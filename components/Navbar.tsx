@@ -19,6 +19,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const visibleLinks = links.filter((link) => !(user?.role === "admin" && link.href === "/report"));
+  const roleLabel = user ? (user.role === "admin" ? "Admin" : "Citizen") : "";
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/94 shadow-sm backdrop-blur-xl">
@@ -51,6 +52,11 @@ export function Navbar() {
           })}
         </nav>
         <div className="flex items-center gap-2">
+          {user && (
+            <span className="rounded-lg bg-slate-100 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200 sm:text-xs">
+              {roleLabel}
+            </span>
+          )}
           {user?.role === "admin" && (
             <Link href="/admin" className="hidden rounded-lg bg-amber-100 px-3 py-2 text-sm font-black text-civic-navy ring-1 ring-amber-200 transition hover:bg-amber-200 sm:block">
               Admin
