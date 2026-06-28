@@ -41,7 +41,7 @@ export default function LoginPage() {
   const [stateName, setStateName] = useState("");
   const [district, setDistrict] = useState("");
   const [place, setPlace] = useState("");
-  const [municipalityName, setMunicipalityName] = useState("Community Demo Ward");
+  const [municipalityName, setMunicipalityName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -243,7 +243,7 @@ export default function LoginPage() {
                     onChange={(event) => setMunicipalityName(event.target.value)}
                     required
                     className="w-full py-3 outline-none"
-                    placeholder="Example: Kukatpally Ward 12"
+                    placeholder="Example: Narasaraopet Municipality"
                   />
                 </div>
                 <span className="mt-2 block text-xs font-semibold text-slate-500">Reports and authority/admin views are filtered to this area.</span>
