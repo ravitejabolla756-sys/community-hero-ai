@@ -287,12 +287,16 @@ export async function addComment(comment: Omit<Comment, "id" | "createdAt">): Pr
 
 export async function getCommentsByIssueId(issueId: string): Promise<Comment[]> {
   if (!firebaseEnabled || !db) {
-    return readLocal<Comment[]>(commentKey, []).filter((comment) => comment.issueId === issueId);
+    return readLocal<Comment[]>(commentKey, [])
+      .filter((comment) => comment.issueId === issueId)
+      .sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
   }
 
   try {
-    const snapshot = await getDocs(query(collection(db, "comments"), where("issueId", "==", issueId), orderBy("createdAt", "asc")));
-    return snapshot.docs.map((item) => mapComment(item.id, item.data()));
+    const snapshot = await getDocs(query(collection(db, "comments"), where("issueId", "==", issueId)));
+    return snapshot.docs
+      .map((item) => mapComment(item.id, item.data()))
+      .sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
   } catch (error) {
     throw new Error(error instanceof Error ? `Failed to load comments: ${error.message}` : "Failed to load comments.");
   }
