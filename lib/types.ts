@@ -19,6 +19,8 @@ export type AppUser = {
   name: string;
   email: string;
   role: Role;
+  municipalityId: string;
+  municipalityName: string;
   createdAt: string;
 };
 
@@ -31,6 +33,8 @@ export type Issue = {
   status: IssueStatus;
   imageUrl: string;
   locationText: string;
+  municipalityId: string;
+  municipalityName: string;
   lat?: number;
   lng?: number;
   aiSummary: string;

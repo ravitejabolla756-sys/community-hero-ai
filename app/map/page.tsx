@@ -5,21 +5,23 @@ import Link from "next/link";
 import { MapPinned } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { GoogleIssueMap } from "@/components/GoogleIssueMap";
-import { getIssues } from "@/lib/firebase/firestore";
+import { useAuth } from "@/components/AuthProvider";
+import { getIssuesForScope } from "@/lib/firebase/firestore";
 import { Issue } from "@/lib/types";
 
 export default function MapPage() {
+  const { user } = useAuth();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const mapKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
-    getIssues()
+    getIssuesForScope(user?.municipalityId)
       .then(setIssues)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load map issues."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user?.municipalityId]);
 
   return (
     <main className="shell py-8">
@@ -28,7 +30,9 @@ export default function MapPage() {
         <h1 className="page-title mt-2 flex items-center gap-3 text-3xl font-black text-civic-navy sm:text-4xl">
           <MapPinned /> Community Map
         </h1>
-        <p className="mt-3 max-w-2xl leading-7 text-slate-600">Geographic view of reported issues and their current status.</p>
+        <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+          Geographic view of reported issues in {user?.municipalityName || "your municipality"} and their current status.
+        </p>
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.38fr]">
         <section className="premium-card min-h-[560px] overflow-hidden rounded-lg">

@@ -8,7 +8,7 @@ import { Badge } from "@/components/Badge";
 import { IssueImage } from "@/components/IssueImage";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
-import { addComment, getCommentsByIssueId, getIssueById, getIssues, verifyIssue } from "@/lib/firebase/firestore";
+import { addComment, getCommentsByIssueId, getIssueById, getIssuesForScope, verifyIssue } from "@/lib/firebase/firestore";
 import { Comment, Issue, statuses } from "@/lib/types";
 
 export default function IssueDetailsPage() {
@@ -28,9 +28,16 @@ export default function IssueDetailsPage() {
     try {
       const [loadedIssue, loadedIssues, loadedComments] = await Promise.all([
         getIssueById(params.id),
-        getIssues(),
+        getIssuesForScope(user?.municipalityId),
         getCommentsByIssueId(params.id)
       ]);
+      if (loadedIssue && user?.municipalityId && loadedIssue.municipalityId !== user.municipalityId) {
+        setIssue(null);
+        setIssues([]);
+        setComments([]);
+        setError("This report belongs to another municipality or service area.");
+        return;
+      }
       setIssue(loadedIssue);
       setIssues(loadedIssues);
       setComments(loadedComments);
@@ -43,7 +50,7 @@ export default function IssueDetailsPage() {
 
   useEffect(() => {
     refresh();
-  }, [params.id]);
+  }, [params.id, user?.municipalityId]);
 
   const similar = useMemo(() => issues.filter((item) => item.id !== issue?.id && item.category === issue?.category).slice(0, 3), [issue, issues]);
   const alreadyVerified = Boolean(user && issue?.verifiedBy.includes(user.uid));
@@ -110,6 +117,7 @@ export default function IssueDetailsPage() {
               <Info label="Urgency reason" value={issue.urgencyReason} />
               <Info label="Recommended action" value={issue.recommendedAction} />
               <Info label="Location" value={issue.locationText} />
+              <Info label="Municipality" value={issue.municipalityName} />
             </div>
             <section>
               <h2 className="mb-3 flex items-center gap-2 text-xl font-black text-civic-navy">

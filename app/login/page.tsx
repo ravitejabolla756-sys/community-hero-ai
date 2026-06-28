@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Building2, CheckCircle2, Lock, Mail, ShieldCheck, User, UsersRound } from "lucide-react";
+import { ArrowRight, Building2, CheckCircle2, Lock, Mail, MapPin, ShieldCheck, User, UsersRound } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
 import { firebaseEnabled } from "@/lib/firebase/config";
@@ -36,6 +36,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [entryRole, setEntryRole] = useState<EntryRole>("citizen");
   const [name, setName] = useState("");
+  const [municipalityName, setMunicipalityName] = useState("Community Demo Ward");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,7 +48,7 @@ export default function LoginPage() {
     event.preventDefault();
     setLoading(true);
     try {
-      const nextUser = mode === "signup" ? await signup(name, email, password) : await login(email, password);
+      const nextUser = mode === "signup" ? await signup(name, email, password, municipalityName) : await login(email, password);
       toast("Welcome to Community Hero AI", "success");
       router.push(entryRole === "owner" && nextUser?.role === "admin" ? "/admin" : "/dashboard");
     } catch (error) {
@@ -133,7 +134,7 @@ export default function LoginPage() {
             </div>
           </div>
           <p className="mt-4 max-w-xl leading-7 text-slate-600">
-            Pick how you are entering Community Hero AI. The same secure email login works for both; admin tools stay limited to the configured admin email.
+            Pick how you are entering Community Hero AI. Your municipality keeps reports scoped to the right town, ward, or apartment cluster.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -179,13 +180,29 @@ export default function LoginPage() {
         )}
         <div className="mt-6 space-y-4">
           {mode === "signup" && (
-            <label className="block">
-              <span className="text-sm font-bold text-slate-600">Name</span>
-              <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition focus-within:border-civic-blue focus-within:ring-4 focus-within:ring-civic-blue/10">
-                <User size={18} />
-                <input value={name} onChange={(event) => setName(event.target.value)} required className="w-full py-3 outline-none" />
-              </div>
-            </label>
+            <>
+              <label className="block">
+                <span className="text-sm font-bold text-slate-600">Name</span>
+                <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition focus-within:border-civic-blue focus-within:ring-4 focus-within:ring-civic-blue/10">
+                  <User size={18} />
+                  <input value={name} onChange={(event) => setName(event.target.value)} required className="w-full py-3 outline-none" />
+                </div>
+              </label>
+              <label className="block">
+                <span className="text-sm font-bold text-slate-600">Town / municipality / apartment area</span>
+                <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition focus-within:border-civic-blue focus-within:ring-4 focus-within:ring-civic-blue/10">
+                  <MapPin size={18} />
+                  <input
+                    value={municipalityName}
+                    onChange={(event) => setMunicipalityName(event.target.value)}
+                    required
+                    className="w-full py-3 outline-none"
+                    placeholder="Example: Kukatpally Ward 12"
+                  />
+                </div>
+                <span className="mt-2 block text-xs font-semibold text-slate-500">Reports and owner/admin views are filtered to this area.</span>
+              </label>
+            </>
           )}
           <label className="block">
             <span className="text-sm font-bold text-slate-600">Email</span>

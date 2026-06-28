@@ -60,6 +60,7 @@ NEXT_PUBLIC_SUPABASE_BUCKET=issue-images
 GEMINI_API_KEY=
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
 NEXT_PUBLIC_ADMIN_EMAIL=
+NEXT_PUBLIC_DEFAULT_MUNICIPALITY=Community Demo Ward
 ```
 
 The app runs without keys using local demo mode, but production judging should use real Firebase, Supabase Storage or Firebase Storage, and Gemini credentials. Google Maps is optional because the app includes a free OpenStreetMap map.
@@ -127,6 +128,8 @@ Optional Google Maps upgrade:
 - `name`
 - `email`
 - `role`
+- `municipalityId`
+- `municipalityName`
 - `createdAt`
 
 `issues`
@@ -138,6 +141,8 @@ Optional Google Maps upgrade:
 - `status`
 - `imageUrl`
 - `locationText`
+- `municipalityId`
+- `municipalityName`
 - `lat`
 - `lng`
 - `aiSummary`
@@ -162,7 +167,7 @@ Optional Google Maps upgrade:
 
 ## Recommended Firestore Security Rules
 
-Use these as a production starting point. They keep public issue visibility, require signed-in users for writes, prevent users from creating issues for someone else, and restrict admin status changes to users whose profile has `role: "admin"`.
+Use these as a production starting point. They keep signed-in, municipality-scoped issue visibility, require signed-in users for writes, prevent users from creating issues for someone else, and restrict admin status changes to users whose profile has `role: "admin"` in the same municipality.
 
 ```js
 rules_version = '2';
@@ -178,6 +183,11 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
+    function sameMunicipality(municipalityId) {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.municipalityId == municipalityId;
+    }
+
     match /users/{userId} {
       allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
       allow create: if signedIn() && request.auth.uid == userId;
@@ -187,17 +197,19 @@ service cloud.firestore {
     }
 
     match /issues/{issueId} {
-      allow read: if true;
+      allow read: if sameMunicipality(resource.data.municipalityId);
 
       allow create: if signedIn()
         && request.resource.data.reportedBy == request.auth.uid
+        && sameMunicipality(request.resource.data.municipalityId)
         && request.resource.data.status == "Reported"
         && request.resource.data.verificationCount == 0
         && request.resource.data.verifiedBy.size() == 0;
 
-      allow update: if isAdmin()
+      allow update: if (isAdmin() && sameMunicipality(resource.data.municipalityId))
         || (
           signedIn()
+          && sameMunicipality(resource.data.municipalityId)
           && request.resource.data.diff(resource.data).changedKeys().hasOnly(["verificationCount", "verifiedBy", "status", "updatedAt"])
           && request.resource.data.verifiedBy.hasAll(resource.data.verifiedBy)
           && request.resource.data.verifiedBy.hasAny([request.auth.uid])

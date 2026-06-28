@@ -4,20 +4,22 @@ import { useEffect, useMemo, useState } from "react";
 import { BarChart3, CheckCircle2, Clock, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { StatCard } from "@/components/StatCard";
-import { getIssues } from "@/lib/firebase/firestore";
+import { useAuth } from "@/components/AuthProvider";
+import { getIssuesForScope } from "@/lib/firebase/firestore";
 import { categories, Issue, severities, statuses } from "@/lib/types";
 
 export default function ImpactPage() {
+  const { user } = useAuth();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    getIssues()
+    getIssuesForScope(user?.municipalityId)
       .then(setIssues)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load impact metrics."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user?.municipalityId]);
 
   const stats = useMemo(() => {
     const resolved = issues.filter((issue) => issue.status === "Resolved").length;
@@ -35,7 +37,9 @@ export default function ImpactPage() {
       <div className="page-panel rounded-lg p-6">
         <p className="page-kicker">Community intelligence</p>
         <h1 className="page-title mt-2 text-3xl font-black text-civic-navy sm:text-4xl">Impact dashboard</h1>
-        <p className="mt-3 max-w-2xl leading-7 text-slate-600">Transparent metrics for community participation, verification, and municipal response.</p>
+        <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+          Transparent metrics for participation, verification, and response inside {user?.municipalityName || "your municipality"}.
+        </p>
       </div>
       {loading && <p className="mt-6 rounded-lg bg-white p-6 font-bold text-slate-500 shadow-soft">Loading impact metrics...</p>}
       {error && <p className="mt-6 rounded-lg bg-red-50 p-6 font-bold text-red-700 ring-1 ring-red-100">{error}</p>}

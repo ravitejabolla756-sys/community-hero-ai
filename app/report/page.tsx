@@ -68,7 +68,9 @@ export default function ReportPage() {
         urgencyReason: ai.urgencyReason,
         recommendedAction: ai.recommendedAction,
         reportedBy: user.uid,
-        reportedByEmail: user.email
+        reportedByEmail: user.email,
+        municipalityId: user.municipalityId,
+        municipalityName: user.municipalityName
       });
       toast("Issue reported with AI triage", "success");
       router.push(`/issues/${issue.id}`);
@@ -87,7 +89,7 @@ export default function ReportPage() {
           <div>
             <h1 className="page-title text-3xl font-black text-civic-navy sm:text-4xl">Report a civic issue</h1>
             <p className="mt-3 max-w-2xl leading-7 text-slate-600">
-              Submit a clean, verifiable case with evidence, location, AI severity, department routing, and public tracking.
+              Submit a clean, verifiable case for {user?.municipalityName || "your municipality"} with evidence, location, AI severity, department routing, and public tracking.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2 rounded-lg border border-slate-200 bg-white p-2 text-center shadow-sm">
@@ -143,6 +145,7 @@ export default function ReportPage() {
                   <LocateFixed />
                 </button>
               </div>
+              <span className="mt-2 block text-xs font-semibold text-slate-500">This report will be visible in {user?.municipalityName || "your selected municipality"}.</span>
             </label>
             <label className="grid min-h-40 cursor-pointer place-items-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-civic-green hover:bg-emerald-50/60">
               <Upload className="text-civic-green" size={30} />

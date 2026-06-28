@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { StatCard } from "@/components/StatCard";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
-import { getIssues, updateIssueStatus } from "@/lib/firebase/firestore";
+import { getIssuesForScope, updateIssueStatus } from "@/lib/firebase/firestore";
 import { categories, Issue, IssueStatus, severities, statuses } from "@/lib/types";
 
 export default function AdminPage() {
@@ -24,7 +24,7 @@ export default function AdminPage() {
   async function refresh() {
     setError("");
     try {
-      setIssues(await getIssues());
+      setIssues(await getIssuesForScope(user?.municipalityId));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load admin issues.");
     } finally {
@@ -33,8 +33,9 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
+    if (!user) return;
     refresh();
-  }, []);
+  }, [user?.municipalityId]);
 
   if (loading) return <main className="shell py-10">Checking access...</main>;
   if (user?.role !== "admin") {
@@ -74,7 +75,9 @@ export default function AdminPage() {
       <div className="page-panel rounded-lg p-6">
         <p className="page-kicker">Municipal response console</p>
         <h1 className="page-title mt-2 text-3xl font-black text-civic-navy sm:text-4xl">Admin response queue</h1>
-        <p className="mt-3 max-w-2xl leading-7 text-slate-600">Prioritize reports, update workflow status, and publish official notes for transparent resolution.</p>
+          <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+            Prioritize reports for {user.municipalityName}, update workflow status, and publish official notes for transparent resolution.
+          </p>
       </div>
       <section className="mt-6 grid gap-4 md:grid-cols-5">
         <StatCard label="All issues" value={issues.length} icon={ClipboardList} accent="#2364aa" />

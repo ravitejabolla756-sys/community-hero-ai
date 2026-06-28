@@ -8,7 +8,7 @@ import { IssueCard } from "@/components/IssueCard";
 import { CardGridSkeleton } from "@/components/Skeletons";
 import { StatCard } from "@/components/StatCard";
 import { useAuth } from "@/components/AuthProvider";
-import { getIssues } from "@/lib/firebase/firestore";
+import { getIssuesForScope } from "@/lib/firebase/firestore";
 import { Issue } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -18,11 +18,11 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    getIssues()
+    getIssuesForScope(user?.municipalityId)
       .then(setIssues)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load dashboard issues."))
       .finally(() => setLoadingIssues(false));
-  }, []);
+  }, [user?.municipalityId]);
 
   const myIssues = useMemo(() => (user ? issues.filter((issue) => issue.reportedBy === user.uid || issue.reportedByEmail === user.email) : issues), [issues, user]);
 
@@ -33,7 +33,9 @@ export default function DashboardPage() {
         <div>
           <p className="page-kicker">Citizen command center</p>
           <h1 className="page-title mt-2 text-3xl font-black text-civic-navy sm:text-4xl">Your civic reports</h1>
-          <p className="mt-3 max-w-2xl leading-7 text-slate-600">Track reports you created, see verification progress, and jump back into the public tracker.</p>
+          <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+            Track reports you created in {user?.municipalityName || "your municipality"}, see verification progress, and jump back into the public tracker.
+          </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link href="/report" className="action-primary px-5 py-3">

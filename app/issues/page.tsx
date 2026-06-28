@@ -5,10 +5,12 @@ import { Inbox, Search } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { IssueCard } from "@/components/IssueCard";
 import { CardGridSkeleton } from "@/components/Skeletons";
-import { getIssues } from "@/lib/firebase/firestore";
+import { useAuth } from "@/components/AuthProvider";
+import { getIssuesForScope } from "@/lib/firebase/firestore";
 import { categories, Issue, severities, statuses } from "@/lib/types";
 
 export default function IssuesPage() {
+  const { user } = useAuth();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -18,11 +20,11 @@ export default function IssuesPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    getIssues()
+    getIssuesForScope(user?.municipalityId)
       .then(setIssues)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load issues."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user?.municipalityId]);
 
   const filtered = useMemo(
     () =>
@@ -38,7 +40,9 @@ export default function IssuesPage() {
       <div className="page-panel rounded-lg p-6">
         <p className="page-kicker">Transparent issue tracking</p>
         <h1 className="page-title mt-2 text-3xl font-black text-civic-navy sm:text-4xl">Public issue tracker</h1>
-        <p className="mt-3 max-w-2xl leading-7 text-slate-600">Browse saved reports from Firestore or demo storage, filter by severity, and open any case for verification.</p>
+        <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+          Browse reports from {user?.municipalityName || "your selected municipality"}, filter by severity, and open any case for verification.
+        </p>
       </div>
       <section className="premium-card mt-6 grid gap-3 rounded-lg p-4 md:grid-cols-4">
         <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3">

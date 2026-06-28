@@ -18,6 +18,7 @@ import {
 } from "firebase/firestore";
 import { db, firebaseEnabled } from "@/lib/firebase/config";
 import { uploadIssueImage } from "@/lib/firebase/storage";
+import { municipalityIdFromName, normalizeMunicipalityName } from "@/lib/municipality";
 import { Comment, Issue, IssueStatus } from "@/lib/types";
 
 export type CreateIssueInput = Omit<Issue, "id" | "createdAt" | "updatedAt" | "verificationCount" | "verifiedBy">;
@@ -36,6 +37,8 @@ const seedIssues: Issue[] = [
     status: "Community Verified",
     imageUrl: "https://images.unsplash.com/photo-1573646918558-863b5a0a20e1?auto=format&fit=crop&w=900&q=80",
     locationText: "MG Road, Hyderabad",
+    municipalityId: "hyderabad-ward-12",
+    municipalityName: "Hyderabad Ward 12",
     lat: 17.385,
     lng: 78.4867,
     aiSummary: "Road hazard near a high-footfall school zone.",
@@ -59,6 +62,8 @@ const seedIssues: Issue[] = [
     status: "Reported",
     imageUrl: "https://images.unsplash.com/photo-1604187351574-c75ca79f5807?auto=format&fit=crop&w=900&q=80",
     locationText: "Kukatpally Bus Stop",
+    municipalityId: "kukatpally-municipality",
+    municipalityName: "Kukatpally Municipality",
     lat: 17.4948,
     lng: 78.3996,
     aiSummary: "Sanitation issue affecting commuters and pedestrians.",
@@ -111,6 +116,7 @@ function timestampToIso(value: unknown): string {
 }
 
 function mapIssue(id: string, data: DocumentData): Issue {
+  const municipalityName = normalizeMunicipalityName(String(data.municipalityName || data.areaName || data.townName || ""));
   return {
     id,
     title: String(data.title || ""),
@@ -120,6 +126,8 @@ function mapIssue(id: string, data: DocumentData): Issue {
     status: data.status || "Reported",
     imageUrl: data.imageUrl || defaultIssueImage,
     locationText: String(data.locationText || ""),
+    municipalityId: String(data.municipalityId || municipalityIdFromName(municipalityName)),
+    municipalityName,
     lat: typeof data.lat === "number" ? data.lat : undefined,
     lng: typeof data.lng === "number" ? data.lng : undefined,
     aiSummary: String(data.aiSummary || ""),
@@ -148,15 +156,23 @@ function mapComment(id: string, data: DocumentData): Comment {
 }
 
 export async function getIssues(): Promise<Issue[]> {
+  return getIssuesForScope();
+}
+
+export async function getIssuesForScope(municipalityId?: string): Promise<Issue[]> {
   if (!firebaseEnabled || !db) {
     const saved = realLocalIssues();
     const issues = saved.length ? saved : seedIssues;
-    return issues.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+    return issues
+      .filter((issue) => !municipalityId || issue.municipalityId === municipalityId)
+      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
   }
 
   try {
     const snapshot = await getDocs(query(collection(db, "issues"), orderBy("createdAt", "desc")));
-    return snapshot.docs.map((item) => mapIssue(item.id, item.data()));
+    return snapshot.docs
+      .map((item) => mapIssue(item.id, item.data()))
+      .filter((issue) => !municipalityId || issue.municipalityId === municipalityId);
   } catch (error) {
     throw new Error(error instanceof Error ? `Failed to load issues: ${error.message}` : "Failed to load issues.");
   }
@@ -182,6 +198,8 @@ export async function createIssue(issue: CreateIssueInput): Promise<Issue> {
   const payload: Issue = {
     ...issue,
     id: issueId,
+    municipalityId: issue.municipalityId || municipalityIdFromName(issue.municipalityName),
+    municipalityName: normalizeMunicipalityName(issue.municipalityName),
     imageUrl,
     status: issue.status || "Reported",
     verificationCount: 0,
