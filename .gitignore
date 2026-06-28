@@ -1,0 +1,13 @@
+.env
+.env*.local
+.next
+node_modules
+.agents
+skills-lock.json
+.vercel
+out
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
