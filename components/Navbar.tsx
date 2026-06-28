@@ -19,7 +19,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const visibleLinks = links.filter((link) => !(user?.role === "admin" && link.href === "/report"));
-  const roleLabel = user ? (user.role === "admin" ? "Admin" : "Citizen") : "";
+  const roleLabel = user ? (user.role === "admin" ? "Authority" : "Citizen") : "";
   const roleTone = user?.role === "admin" ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-emerald-50 text-emerald-800 ring-emerald-200";
 
   return (
@@ -61,7 +61,7 @@ export function Navbar() {
           )}
           {user?.role === "admin" && (
             <Link href="/admin" className="hidden rounded-lg bg-amber-100 px-3 py-2 text-sm font-black text-civic-navy ring-1 ring-amber-200 transition hover:bg-amber-200 sm:block">
-              Admin
+              Queue
             </Link>
           )}
           {user ? (

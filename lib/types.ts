@@ -37,6 +37,7 @@ export type SignupProfile = {
   district: string;
   place: string;
   municipalityName: string;
+  requestedRole?: Role;
 };
 
 export type Issue = {

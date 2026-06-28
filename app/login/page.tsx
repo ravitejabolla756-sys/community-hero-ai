@@ -55,10 +55,23 @@ export default function LoginPage() {
     try {
       const nextUser =
         mode === "signup"
-          ? await signup({ name, mobile, country, state: stateName, district, place, municipalityName }, email, password)
+          ? await signup(
+              {
+                name,
+                mobile,
+                country,
+                state: stateName,
+                district,
+                place,
+                municipalityName,
+                requestedRole: entryRole === "owner" ? "admin" : "citizen"
+              },
+              email,
+              password
+            )
           : await login(email, password);
       toast("Welcome to Community Hero AI", "success");
-      router.push(entryRole === "owner" && nextUser?.role === "admin" ? "/admin" : "/dashboard");
+      router.push(nextUser?.role === "admin" ? "/admin" : "/dashboard");
     } catch (error) {
       toast(error instanceof Error ? error.message : "Authentication failed", "error");
     } finally {

@@ -13,7 +13,8 @@ const defaultSignupProfile: SignupProfile = {
   state: "",
   district: "",
   place: "",
-  municipalityName: ""
+  municipalityName: "",
+  requestedRole: "citizen"
 };
 
 function normalizeProfile(profile: Partial<SignupProfile> = {}): SignupProfile {
@@ -24,7 +25,8 @@ function normalizeProfile(profile: Partial<SignupProfile> = {}): SignupProfile {
     state: profile.state?.trim() || "",
     district: profile.district?.trim() || "",
     place: profile.place?.trim() || "",
-    municipalityName: normalizeMunicipalityName(profile.municipalityName)
+    municipalityName: normalizeMunicipalityName(profile.municipalityName),
+    requestedRole: profile.requestedRole === "admin" ? "admin" : "citizen"
   };
 }
 
@@ -52,6 +54,7 @@ export function getDemoUserFromStorage(): AppUser | null {
 
 function demoUser(email: string, profile?: Partial<SignupProfile>): AppUser {
   const normalizedProfile = normalizeProfile({ ...profile, name: profile?.name || email.split("@")[0] });
+  const requestedAdmin = normalizedProfile.requestedRole === "admin";
   return {
     uid: email,
     email,
@@ -61,7 +64,7 @@ function demoUser(email: string, profile?: Partial<SignupProfile>): AppUser {
     state: normalizedProfile.state,
     district: normalizedProfile.district,
     place: normalizedProfile.place,
-    role: email === process.env.NEXT_PUBLIC_ADMIN_EMAIL || email.toLowerCase().includes("admin") ? "admin" : "citizen",
+    role: requestedAdmin || email === process.env.NEXT_PUBLIC_ADMIN_EMAIL || email.toLowerCase().includes("admin") ? "admin" : "citizen",
     municipalityId: municipalityIdFromName(normalizedProfile.municipalityName),
     municipalityName: normalizedProfile.municipalityName,
     createdAt: new Date().toISOString()
@@ -130,6 +133,7 @@ export async function signupWithEmail(profile: SignupProfile, email: string, pas
   const normalizedProfile = normalizeProfile(profile);
   const municipalityName = normalizedProfile.municipalityName;
   const municipalityId = municipalityIdFromName(municipalityName);
+  const role = normalizedProfile.requestedRole === "admin" || email === process.env.NEXT_PUBLIC_ADMIN_EMAIL ? "admin" : "citizen";
 
   if (firebaseEnabled && auth && db) {
     const credential = await createUserWithEmailAndPassword(auth, email, password);
@@ -143,7 +147,7 @@ export async function signupWithEmail(profile: SignupProfile, email: string, pas
       state: normalizedProfile.state,
       district: normalizedProfile.district,
       place: normalizedProfile.place,
-      role: email === process.env.NEXT_PUBLIC_ADMIN_EMAIL ? "admin" : "citizen",
+      role,
       municipalityId,
       municipalityName,
       createdAt: serverTimestamp()
