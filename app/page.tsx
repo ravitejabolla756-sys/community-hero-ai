@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, Bot, CheckCircle2, Clock3, MapPinned, Megaphone, Route, ShieldCheck } from "lucide-react";
+import { ArrowRight, BarChart3, Bot, Building2, CheckCircle2, Clock3, FileCheck2, MapPinned, Megaphone, Route, ShieldCheck, UsersRound } from "lucide-react";
 
 const features = [
   { icon: Megaphone, title: "Citizen reports", text: "Capture title, evidence, category, and precise location from mobile." },
@@ -17,49 +17,68 @@ const queue = [
 export default function Home() {
   return (
     <main>
-      <section className="relative overflow-hidden border-b border-slate-200/70">
-        <div className="shell grid min-h-[calc(100dvh-116px)] items-center gap-10 py-10 lg:grid-cols-[0.92fr_1.08fr] lg:py-16">
-          <div className="relative z-10">
-            <p className="mb-5 inline-flex rounded-md border border-emerald-200 bg-white/80 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-civic-green shadow-sm backdrop-blur">
-              Civic issue ops for any locality
+      <section className="hero-civic">
+        <div className="shell relative z-10 flex min-h-[calc(100dvh-4.6rem)] flex-col justify-center py-12 sm:py-16">
+          <div className="max-w-4xl">
+            <p className="mb-5 inline-flex rounded-md border border-white/20 bg-white/12 px-3 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-emerald-200 shadow-sm backdrop-blur">
+              Civic issue ops for every locality
             </p>
-            <h1 className="max-w-3xl text-5xl font-black leading-[0.94] tracking-[-0.055em] text-civic-navy sm:text-6xl lg:text-7xl">
-              Report, verify, and resolve local problems in one public loop.
+            <h1 className="max-w-4xl text-5xl font-black leading-[0.92] tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
+              Turn street complaints into accountable public response.
             </h1>
-            <p className="mt-6 max-w-[60ch] text-base leading-8 text-slate-600 sm:text-lg">
-              Community Hero AI gives citizens a clean reporting flow and gives authorities a scoped response queue for their municipality, district, ward, or community.
+            <p className="mt-6 max-w-[62ch] text-base leading-8 text-slate-100 sm:text-lg">
+              Citizens report local issues with evidence. Community authorities receive a scoped queue, AI triage, verification signals, and a public trail from report to resolution.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link href="/report" className="action-primary px-5 py-3">
-                Start citizen report <ArrowRight size={18} />
+                Report as citizen <ArrowRight size={18} />
               </Link>
-              <Link href="/login" className="action-secondary px-5 py-3">
-                Authority access
+              <Link href="/login" className="inline-flex items-center justify-center gap-2 rounded-md border border-white/25 bg-white/12 px-5 py-3 font-black text-white shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20">
+                Authority login
               </Link>
-            </div>
-            <div className="mt-9 grid max-w-2xl grid-cols-3 overflow-hidden rounded-lg border border-slate-200 bg-white/76 shadow-soft backdrop-blur">
-              {[
-                ["AI", "triage"],
-                ["3", "verifications"],
-                ["Area", "scoping"]
-              ].map(([value, label]) => (
-                <div key={label} className="border-r border-slate-200 p-4 last:border-r-0">
-                  <p className="font-mono text-3xl font-black tracking-[-0.05em] text-civic-navy">{value}</p>
-                  <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
-                </div>
-              ))}
             </div>
           </div>
 
-          <div className="relative z-10 lg:pl-4">
-            <div className="premium-card overflow-hidden rounded-lg p-3">
+          <div className="mt-10 grid gap-4 lg:grid-cols-[0.72fr_1fr] lg:items-end">
+            <div className="hero-proof rounded-lg p-4 text-white">
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  ["AI", "triage JSON"],
+                  ["3", "community checks"],
+                  ["Area", "scoped queue"]
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-md bg-white/10 p-4 ring-1 ring-white/12">
+                    <p className="font-mono text-3xl font-black tracking-[-0.05em]">{value}</p>
+                    <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-slate-200">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-md bg-white/10 p-4 ring-1 ring-white/12">
+                  <div className="flex items-center gap-3">
+                    <UsersRound size={20} className="text-emerald-200" />
+                    <p className="font-black">Citizen mode</p>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-200">Report, verify, comment, and track status in your selected area.</p>
+                </div>
+                <div className="rounded-md bg-white/10 p-4 ring-1 ring-white/12">
+                  <div className="flex items-center gap-3">
+                    <Building2 size={20} className="text-emerald-200" />
+                    <p className="font-black">Authority mode</p>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-200">Review citizen reports, update status, and publish official response notes.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="authority-board overflow-hidden rounded-lg p-3">
               <div className="overflow-hidden rounded-md border border-slate-200 bg-[#f7faf9]">
                 <div className="flex items-center justify-between border-b border-slate-200 bg-white/90 px-4 py-4">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-civic-green">Area command queue</p>
-                    <h2 className="mt-1 text-2xl font-black tracking-[-0.04em] text-civic-navy">Civic response board</h2>
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-civic-green">Live area command</p>
+                    <h2 className="mt-1 text-2xl font-black tracking-[-0.04em] text-civic-navy">Response board</h2>
                   </div>
-                  <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700 ring-1 ring-emerald-200">Live</span>
+                  <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700 ring-1 ring-emerald-200">Active</span>
                 </div>
                 <div className="grid gap-3 p-3">
                   {queue.map((item, index) => (
@@ -100,20 +119,11 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="premium-card ml-auto mt-4 grid max-w-md grid-cols-[auto_1fr] gap-3 rounded-lg p-4">
-              <div className="grid h-11 w-11 place-items-center rounded-md bg-civic-navy text-white">
-                <Route size={21} />
-              </div>
-              <div>
-                <p className="text-sm font-black text-civic-navy">Role-scoped data</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">Citizens see their reports. Authorities see only their selected area queue.</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      <section className="shell py-16">
+      <section className="shell relative z-10 -mt-4 py-16">
         <div className="mb-8 grid gap-4 lg:grid-cols-[0.75fr_1fr] lg:items-end">
           <div>
             <p className="page-kicker">How the system works</p>
@@ -136,6 +146,18 @@ export default function Home() {
               </div>
             );
           })}
+        </div>
+        <div className="premium-card mt-6 grid gap-4 rounded-lg p-5 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+          <div className="grid h-12 w-12 place-items-center rounded-md bg-civic-navy text-white">
+            <Route size={22} />
+          </div>
+          <div>
+            <h3 className="text-xl font-black tracking-[-0.03em] text-civic-navy">Built for scoped civic data, not one global noise feed.</h3>
+            <p className="mt-1 max-w-3xl leading-7 text-slate-600">Every signup captures country, state, district, locality, and municipality/community so citizens and authorities see the right area.</p>
+          </div>
+          <Link href="/login" className="action-secondary px-5 py-3">
+            Create account <FileCheck2 size={18} />
+          </Link>
         </div>
       </section>
     </main>
